@@ -1,0 +1,25 @@
+{
+  "name": "algorithms-i-coursera",
+  "version": "1.0.0",
+  "description": "[algorithms-part1](https://www.coursera.org/learn/algorithms-part1/)",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liucsny/algorithms-I-coursera.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liucsny/algorithms-I-coursera/issues"
+  },
+  "homepage": "https://github.com/liucsny/algorithms-I-coursera#readme",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}
