@@ -24,6 +24,7 @@ class Plot{
   }
 
   drawLogLogFun(){
+    noFill();
     beginShape();
     for (let i = 0; i < this.w; i++) {
       let ix = Math.pow(10, i)
@@ -47,6 +48,7 @@ class Plot{
     pop();
 
     push();
+    noFill();
     translate(this.w + 20, this.y);
     rect(0, 0, this.w, this.w);
     this.drawLogLogFun();
@@ -83,9 +85,13 @@ function log10(x){
   return Math.log10(x/funcScale)*funcScale*10
 }
 
+function sin(x){
+  return Math.sin(x/funcScale)*funcScale*10+100
+}
 
 
-let funcs = [linear, pow2, pow3, exponential, nlogN, log10]
+
+let funcs = [linear, pow2, pow3, exponential, nlogN, log10, sin]
 let plots = [];
 let gridScale = 300;
 
@@ -94,7 +100,7 @@ let gridScale = 300;
 
 
 function setup() {
-  createCanvas(640, 2040);
+  createCanvas(640, 3000);
   smooth();
 
   textSize(24);
