@@ -2,9 +2,25 @@ class Percolation{
   constructor(n,size=5){
     this.n = n;
     this.sites = [];
-    for (let i = 0; i < n; i++) {
+    this.upperNode = {
+      get root(){
+        return this
+      },
+      set root(node){
+        delete this.root;
+        this.root = node;
+      }
+    };
+    this.size = size;
+
+    this.initSites();
+  }
+
+  initSites(){
+    this.sites = [];
+    for (let i = 0; i < this.n; i++) {
       this.sites.push([])
-      for (let j = 0; j < n; j++) {
+      for (let j = 0; j < this.n; j++) {
         this.sites[i][j] = {
           status: 0,
           x: j,
@@ -19,15 +35,6 @@ class Percolation{
         };
       }
     }
-
-    this.upperNode = {
-      get root(){
-        return this
-      },
-    };
-    //0 block，1 open，2 percolated
-    this.size = size;
-    // this.openUpNodes = [];
   }
 
   randomlizeSite(p=0.5){
@@ -51,39 +58,63 @@ class Percolation{
   }
 
   quickUnion(node1, node2){
-    let node1TreeRoot = this.findTreeRoot(node1);
-    let node2TreeRoot = this.findTreeRoot(node2);
+    let {treeRoot:node1TreeRoot,count:node1Depth} = this.getChainInfo(node1);
+    let {treeRoot:node2TreeRoot,count:node2Depth} = this.getChainInfo(node2);
 
     if(node1TreeRoot !== node2TreeRoot){
-      node1TreeRoot.root = node2TreeRoot
+      if(node1Depth<node2Depth){
+        node1TreeRoot.root = node2TreeRoot
+      }else{
+        // console.log(node2TreeRoot)
+        node2TreeRoot.root = node1TreeRoot
+      }
     }
   }
 
-  findTreeRoot(node){
-    while(node !== node.root){
-      node = node.root
-    }
-    return node
-  }
-
-  countDepth(node){
+  getChainInfo(node){
+    let originNode = node;
     let count = 0;
     while(node !== node.root){
       node = node.root
       count++;
     }
-    return count
+    originNode.root = node;
+
+    return {
+      count,
+      treeRoot:node
+    }
   }
+  // findTreeRoot(node){
+  //   let originNode = node;
+  //   while(node !== node.root){
+  //     node = node.root
+  //   }
+  //   originNode.root = node;
+
+  //   return node
+  // }
+
+  // countDepth(node){
+  //   let originNode = node;
+  //   let count = 0;
+  //   while(node !== node.root){
+  //     node = node.root
+  //     count++;
+  //   }
+  //   originNode.root = node;
+  //   return count
+  // }
 
   isConnected(node1, node2){
-    return this.findTreeRoot(node1) === this.findTreeRoot(node2);
+    return this.getChainInfo(node1).treeRoot === this.getChainInfo(node2).treeRoot;
   }
 
   unionUpSites(){
     for (let i = 0; i < this.n; i++) {
       let node = this.sites[0][i];
       if(node.status!==0){
-        let treeRoot = this.findTreeRoot(node);
+        let treeRoot = this.getChainInfo(node).treeRoot;
         if(treeRoot!==this.upperNode){
           treeRoot.root = this.upperNode
         }
@@ -123,7 +154,7 @@ class Percolation{
   fillUpSites(){
     this.sites.forEach((row, i)=>{
       row.forEach((site, j)=>{
-        let treeRoot = this.findTreeRoot(site)
+        let treeRoot = this.getChainInfo(site).treeRoot
         if(treeRoot === this.upperNode){
           site.status = 2;
         }
@@ -134,41 +165,66 @@ class Percolation{
   percolates(){
     for (let i = 0; i < this.n; i++) {
       let node = this.sites[this.n-1][i];
-      if(this.findTreeRoot(node)===this.upperNode) return true;
+      if(this.getChainInfo(node).treeRoot===this.upperNode) return true;
     }
     return false;
   }
 
   display(){
     push();
+    background(255);
     noStroke();
     this.sites.forEach((row, i)=>{
       row.forEach((site, j)=>{
         if(site.status===1){
-          fill('#F2F2F2');//white
+          // fill('#F2F2F2');//white
+          fill('#fff')
         }else if(site.status===2){
           fill('#2895FB');//blue
         }else{
           fill('#000');//black
         }
-        rect(this.size*site.x,this.size*site.y,this.size,this.size)
+        rect(this.size*site.x,this.size*site.y+50,this.size,this.size)
       })
     })
     pop();
   }
 }
 
-let percolation = new Percolation(80,6);
+let percolation = new Percolation(300,2);
+let button;
+let inp;
+let text;
 
 function setup() {
-  createCanvas(800,800);
-  console.log(percolation);
-  percolation.randomlizeSite(.6);
-  // percolation.unionUpSites();
+  createCanvas(1600,800);
+  inp = createInput(0.5);
+  inp.position(120, 20);
+
+  button = createButton('click me');
+  button.mouseClicked(refresh)
+  button.position(20, 20);
+  
+  text = createP(percolation.percolates());
+  text.elt.style.margin = 0;
+  text.position(280,20)
+
+  percolation.randomlizeSite(inp.value());
+  percolation.unionUpSites();
+  percolation.display();
 }
 
 function draw() {
-  background(255);
+}
 
+function refresh(){
+  // percolation.randomlizeSite(.59);
+  // percolation.unionUpSites();
+  // percolation.display();
+  percolation.initSites();
+  percolation.randomlizeSite(inp.value());
+  percolation.unionUpSites();
   percolation.display();
+  text.elt.innerText = percolation.percolates();
+  console.log('clicked')
 }
